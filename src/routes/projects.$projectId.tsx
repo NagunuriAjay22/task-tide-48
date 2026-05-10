@@ -37,13 +37,16 @@ function ProjectDetail() {
     const [{ data: p }, { data: t }, { data: m }, { data: profs }] = await Promise.all([
       supabase.from("projects").select("id, name, description").eq("id", projectId).maybeSingle(),
       supabase.from("tasks").select("id, project_id, title, description, assignee_id, status, due_date").eq("project_id", projectId).order("created_at", { ascending: false }),
-      supabase.from("project_members").select("user_id, profiles(full_name, email)").eq("project_id", projectId),
+      supabase.from("project_members").select("user_id").eq("project_id", projectId),
       supabase.from("profiles").select("id, full_name, email"),
     ]);
     setProject(p);
     setTasks((t ?? []) as TaskRow[]);
-    type MRow = { user_id: string; profiles: { full_name: string | null; email: string | null } | null };
-    setMembers(((m ?? []) as MRow[]).map((r) => ({ user_id: r.user_id, full_name: r.profiles?.full_name ?? null, email: r.profiles?.email ?? null })));
+    const profById = new Map((profs ?? []).map((pr) => [pr.id, pr]));
+    setMembers(((m ?? []) as { user_id: string }[]).map((r) => {
+      const pr = profById.get(r.user_id);
+      return { user_id: r.user_id, full_name: pr?.full_name ?? null, email: pr?.email ?? null };
+    }));
     setAllProfiles(profs ?? []);
     setLoading(false);
   }, [projectId]);
