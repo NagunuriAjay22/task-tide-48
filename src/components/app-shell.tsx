@@ -4,12 +4,13 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const nav = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; adminOnly?: boolean };
+const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/projects", label: "Projects", icon: FolderKanban },
   { to: "/my-tasks", label: "My Tasks", icon: CheckSquare },
   { to: "/team", label: "Team", icon: Users, adminOnly: true },
-] as const;
+];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, role, signOut } = useAuth();
